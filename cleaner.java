@@ -60,20 +60,19 @@ public class cleaner {
     }
     public void makeNumList()
     {
+        int count = 0;
         for (int i = 0; i < cleanData.size(); i++) {
             List<Double> numbers = new ArrayList<>();
             for (int j = 1; j < cleanData.get(i).size(); j++) {
                 try {
                     numbers.add(Double.parseDouble(cleanData.get(i).get(j)));
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number: " + e.getMessage());
                     numbers.clear();
-                    continue;
+                    i++;
                 }
             }
-            if (!numbers.isEmpty()) {
-                numberList.add(numbers);
-            }
+            numberList.add(numbers);
         }
 
         for (List<Double> data : numberList) {
@@ -84,20 +83,26 @@ public class cleaner {
 
         System.out.println(numberList);
         System.out.println(numberList.size());
+        System.out.println(count + " Faulty records");
     }
 
     public List<List<Double>> getOutliers() {
         // Need to find any non numeric values, as well as outrageous values, over 300 for example
+        System.out.println("REMOVING OUTLIERS");
         List<List<Double>> outliers = new ArrayList<>();
 
         for (int i = 0; i< numberList.size(); i++) {
             List<Double> erroneous = new ArrayList<>();
             for (int j = 1; j < numberList.get(i).size(); j++) {
                 // Skip first value as its date
+                if (numberList.get(i).get(j) > 350.0) {
+                    System.out.println("REMOVING RECORD " + i + " CONTAINING VALUE " + numberList.get(i).get(j));
+                    numberList.remove(i);
+                }
             }
         }
 
-
+        System.out.println(numberList.size());
         return outliers;
     }
 

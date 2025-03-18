@@ -4,6 +4,7 @@ public class main {
         cleaner buss = new cleaner();
         buss.getRawData();
         buss.makeNumList();
+        buss.getOutliers();
 
 
         /* Date, Crakehill, Skip Bridge, Westwick, Skelton, Arkengarth, East Cowton, Malham Tarn, Snaizeholme
