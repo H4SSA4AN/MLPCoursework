@@ -15,6 +15,7 @@ public class cleaner {
 
     private List<List<String>> cleanData;
     private List<List<String>> rawList = new ArrayList<>();
+    private List<List<Double>> numberList = new ArrayList<>();
 
     cleaner () {}
 
@@ -55,6 +56,49 @@ public class cleaner {
         cleanData.addFirst(data);
 
         System.out.println(cleanData);
+        System.out.println(cleanData.size());
+    }
+    public void makeNumList()
+    {
+        for (int i = 0; i < cleanData.size(); i++) {
+            List<Double> numbers = new ArrayList<>();
+            for (int j = 1; j < cleanData.get(i).size(); j++) {
+                try {
+                    numbers.add(Double.parseDouble(cleanData.get(i).get(j)));
+                }
+                catch (NumberFormatException e) {
+                    numbers.clear();
+                    continue;
+                }
+            }
+            if (!numbers.isEmpty()) {
+                numberList.add(numbers);
+            }
+        }
+
+        for (List<Double> data : numberList) {
+            if (data.isEmpty()) {
+                numberList.remove(data);
+            }
+        }
+
+        System.out.println(numberList);
+        System.out.println(numberList.size());
+    }
+
+    public List<List<Double>> getOutliers() {
+        // Need to find any non numeric values, as well as outrageous values, over 300 for example
+        List<List<Double>> outliers = new ArrayList<>();
+
+        for (int i = 0; i< numberList.size(); i++) {
+            List<Double> erroneous = new ArrayList<>();
+            for (int j = 1; j < numberList.get(i).size(); j++) {
+                // Skip first value as its date
+            }
+        }
+
+
+        return outliers;
     }
 
 }
