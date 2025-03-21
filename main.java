@@ -1,11 +1,7 @@
 public class main {
     public static void main(String[] args) {
-
-        cleaner buss = new cleaner();
-        buss.getRawData();
-        buss.makeNumList();
-        buss.getOutliers();
-
+        cleaner hello = new cleaner();
+        hello.check("ouseDataCSV.csv");
 
         /* Date, Crakehill, Skip Bridge, Westwick, Skelton, Arkengarth, East Cowton, Malham Tarn, Snaizeholme
         Need to predict mean flow in skelton one day ahead

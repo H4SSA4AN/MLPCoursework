@@ -1,109 +1,166 @@
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class cleaner {
 
-    // Contains methods that take the data from the excel sheet
-    // Randomises data, finds anomalies
-    // Need to turn every row into an array
-    // Whole dataset into a 2D array
+    private List<List<String>> readFile(String fileName) {
+        List<List<String>> list = new ArrayList<>();
 
-
-    private List<List<String>> cleanData;
-    private List<List<String>> rawList = new ArrayList<>();
-    private List<List<Double>> numberList = new ArrayList<>();
-
-    cleaner () {}
-
-
-    // Reads excel sheet and puts all rows into raw array
-    public void getRawData()
-    {
-        try {
-            File file = new File("ouseDataCSV.csv");  // Specify the file path
+        try{
+            File file = new File(fileName);
             Scanner scanner = new Scanner(file);
-
             while (scanner.hasNextLine()) {
-                List<String> row = List.of((scanner.nextLine().split(",")));
-                rawList.add(row);
+                String line = scanner.nextLine();
+                list.add(List.of(line.split(",")));
             }
-
-            scanner.close();  // Close the scanner to free resources
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found: " + e.getMessage());
+            scanner.close();
+        }catch (FileNotFoundException e) {
+            System.out.println("File not found");
         }
-
-        cleanData();
-
+        return list;
     }
 
-    public void cleanData() {
-        // First 2 rows are useless, remove them
-        // Third row has unnecessary commas, remove them
-        // Also erroneous data needs to go
-        cleanData = rawList;
-        cleanData.remove(0);
-        cleanData.remove(0);
-        System.out.println(cleanData);
-        List<String> data = cleanData.get(0);
-        data = data.subList(0,9);
-        System.out.println(data);
-        cleanData.remove(0);
-        cleanData.addFirst(data);
+    private double findMax (List<Double> data) {
+        double max = 0;
 
-        System.out.println(cleanData);
-        System.out.println(cleanData.size());
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(i) > max) {
+                max = data.get(i);
+            }
+        }
+        return max;
     }
-    public void makeNumList()
+
+    private double findMin (List<Double> data) {
+        double min = findMax(data);
+
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(i) < min) {
+                min = data.get(i);
+            }
+        }
+        return min;
+    }
+
+    private List<List<String>> removeFirstTwoLines(List<List<String>> fileData) {
+        fileData.remove(0);
+        fileData.remove(0);
+
+        return fileData;
+    }
+
+    private List<List<Double>> stringToDouble (List<List<String>> inputs)
     {
-        int count = 0;
-        for (int i = 0; i < cleanData.size(); i++) {
-            List<Double> numbers = new ArrayList<>();
-            for (int j = 1; j < cleanData.get(i).size(); j++) {
+        List<List<Double>> data = new ArrayList<>();
+        for (int i = 0; i < inputs.size(); i++) {
+            List<Double> stringToNum = new ArrayList<>();
+            for (String value : inputs.get(i)) {
                 try {
-                    numbers.add(Double.parseDouble(cleanData.get(i).get(j)));
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number: " + e.getMessage());
-                    numbers.clear();
+                    stringToNum.add(Double.parseDouble(value));
+                } catch (NumberFormatException e) { // The second there is a letter, remove the whole row
+                    stringToNum.clear();
                     i++;
                 }
             }
-            numberList.add(numbers);
-        }
-
-        for (List<Double> data : numberList) {
-            if (data.isEmpty()) {
-                numberList.remove(data);
+            if (!stringToNum.isEmpty()) {
+                data.add(stringToNum);
             }
         }
 
-        System.out.println(numberList);
-        System.out.println(numberList.size());
-        System.out.println(count + " Faulty records");
+        return data;
     }
 
-    public List<List<Double>> getOutliers() {
-        // Need to find any non numeric values, as well as outrageous values, over 300 for example
-        System.out.println("REMOVING OUTLIERS");
-        List<List<Double>> outliers = new ArrayList<>();
+    // Arrays only have the relevant columns, no unneccesary dates or words
+    private List<List<String>> keepOnlyNumbers(List<List<String>> fileData) {
+        List<List<String>> newData = new ArrayList<>();
+        for (int i = 0; i < fileData.size(); i++) {
+            newData.add(fileData.get(i).subList(1,9));
+        }
 
-        for (int i = 0; i< numberList.size(); i++) {
-            List<Double> erroneous = new ArrayList<>();
-            for (int j = 1; j < numberList.get(i).size(); j++) {
-                // Skip first value as its date
-                if (numberList.get(i).get(j) > 350.0) {
-                    System.out.println("REMOVING RECORD " + i + " CONTAINING VALUE " + numberList.get(i).get(j));
-                    numberList.remove(i);
-                }
+        return newData;
+    }
+
+    // Function to separate the 2D array into a 1D array of each column, so i can find outliers easier, as well as standardise
+    // 0-7, with 3 being skelton.
+    private List<Double> separateData (List<List<Double>> data, int index)
+    {
+        List<Double> column = new ArrayList<>();
+        for (int i = 0; i < data.size(); i++) {
+            column.add(data.get(i).get(index));
+        }
+
+        return column;
+    }
+
+    private double findMean (List<Double> data) {
+        double mean = 0;
+
+        for (double num : data) {
+            mean += num;
+        }
+
+        mean /= data.size();
+
+        return mean;
+    }
+
+    private double sd (List<Double> column)
+    {
+        // calculate standard deviation of a column
+        double deviation = 0;
+        double mean = findMean(column);
+
+        for (double num : column) {
+            deviation += Math.pow(num - mean, 2);
+        }
+
+        return Math.sqrt(deviation / column.size());
+    }
+
+    // Returns the indecies of outliers, to be removed later
+    private List<Integer> findOutliers (List<Double> data)
+    {
+        // Use modified Z score
+        List<Integer> outliers = new ArrayList<>();
+        Collections.sort(data);
+        double median = data.get(data.size()/2);
+        List<Double> deviations = new ArrayList<>();
+        for (int i = 0; i < data.size(); i++) {
+            deviations.add(Math.abs(data.get(i) - median));
+        }
+        Collections.sort(deviations);
+        double MAD = deviations.get((int) (deviations.size()/2.0));
+        System.out.println(MAD);
+
+        for (int i = 0; i < data.size(); i++) {
+            double Z = Math.abs((0.6745 * (data.get(i) - median)) / MAD);
+            if (Z > 3.5)
+            {
+                outliers.add(i);
             }
         }
 
-        System.out.println(numberList.size());
         return outliers;
     }
+
+
+    public void check(String name)
+    {
+        List<List<String>> data = readFile(name);
+        data = removeFirstTwoLines(data);
+        data = keepOnlyNumbers(data);
+        List<List<Double>> onlyNums = stringToDouble(data);
+        List<Double> crakeHill = separateData(onlyNums, 0);
+        double deviate = sd(crakeHill);
+
+        System.out.println(data);
+        System.out.println(data.size());
+        System.out.println(onlyNums);
+        System.out.println(onlyNums.size());
+        System.out.println(deviate);
+        System.out.println(findOutliers(crakeHill).size());
+    }
+
 
 }
