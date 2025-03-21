@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 public class Network {
     // Collection of hidden layers and output layer
@@ -7,6 +8,7 @@ public class Network {
 
     List<Layer> hiddenLayers;
     Layer outputLayer;
+    double loss;
 
     Network (int inputLen, int[] hiddenLayerSizes, int outputLayerSize, double learningRate, Activation hiddenFunc, Activation outputFunc) {
         hiddenLayers = new ArrayList<>();
@@ -60,18 +62,28 @@ public class Network {
 
     public void epoch(List<List<Double>> inputs, List<Double> desiredOutputs)
     {
+        List<Double> predicteds = new ArrayList<>();
+        List<Double> trues = new ArrayList<>();
         for (int i = 0; i < inputs.size(); i++) {
             hiddenLayers.getFirst().setInputs(inputs.get(i));
             forwardPass();
+            predicteds.add(outputLayer.getOutputs().get(0));
             backPass(desiredOutputs.get(i));
+            trues.add(desiredOutputs.get(i));
             updateWeights();
         }
+        loss = MSE(predicteds, trues);
     }
 
-    public void loop(int count, List<List<Double>> inputs, List<Double> desiredOutputs)
+    // This is where we do showing the loss
+    public void loop(int count, List<List<Double>> inputs, List<Double> desiredOutputs, int printLoss)
     {
         for (int i = 0; i < count; i++) {
             epoch(inputs, desiredOutputs);
+            if (i % printLoss == 0)
+            {
+                System.out.println(i + "\t" + loss);
+            }
         }
     }
 
@@ -81,6 +93,29 @@ public class Network {
         getFinalOut();
         System.out.println(" Looking For : " + desiredOutput);
     }
+
+
+    // MSE for a single output node, as each list is 1D
+    public double MSE (List<Double> predicteds, List<Double> actuals) {
+        double sum = 0.0;
+        for (int i = 0; i < predicteds.size(); i++) {
+            sum += Math.pow(actuals.get(i) - predicteds.get(i), 2);
+        }
+        return sum / predicteds.size();
+    }
+
+    public double multipleOutMSE (List<List<Double>> predicteds, List<List<Double>> actuals) {
+        double sum = 0.0;
+
+        for (int i = 0; i < predicteds.size(); i++) {
+            for (int j=0; j< predicteds.get(i).size(); j++) {
+                sum += Math.pow(actuals.get(i).get(j) - predicteds.get(i).get(j), 2);
+            }
+        }
+
+        return sum / predicteds.size();
+    }
+
 
 
     public void printOutputs() {
