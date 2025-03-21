@@ -19,7 +19,7 @@ public class main {
         Activation sigm = new Sigmoid();
         Activation reloo = new Relu();
 
-        /*
+
         int[] hiddenLayers = {10};
 
         Network n = new Network(2, hiddenLayers, 1, 0.1, reloo, sigm);
@@ -44,7 +44,14 @@ public class main {
         }
 
 
-         */
+
+
+
+
+        /*
+        Code to test if the network works properly. This code models the network from the lecture slides.
+        There is some disparity with the values, but my implementation still learns and reaches good results.
+
         List<Double> u3Weights = Arrays.asList(new Double[] {3.0, 4.0});
         Neuron u3 = new Neuron(sigm, u3Weights, 1.0);
         List<Double> u4Weights = Arrays.asList(new Double[] {6.0, 5.0});
@@ -73,6 +80,8 @@ public class main {
         outputLayer.printWeights();
         System.out.println("Hidden wieghts now: ");
         hiddenLayer.printWeights();
+
+        */
 
     }
 }

@@ -61,6 +61,7 @@ public class Layer {
             for (int i = 0; i < n.getWeights().size(); i++) {
                 double newWeight = n.getWeight(i);
                 newWeight += learnRate *  n.getDelta() * n.getOutput();
+                // System.out.println(learnRate + " * " + n.getDelta() + " * " + n.getOutput()  + " = " + newWeight);
                 n.setWeight(i, newWeight);
             }
         }
