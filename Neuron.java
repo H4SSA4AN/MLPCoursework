@@ -19,6 +19,12 @@ public class Neuron {
         this.func = func;
     }
 
+    Neuron ( Activation func, List<Double> weights, double bias) {
+        this.func = func;
+        this.weights = weights;
+        this.bias = bias;
+    }
+
     // Weighted sum of inputs + bias, with activation function applied
     public void forward() {
         output = bias;
@@ -36,6 +42,10 @@ public class Neuron {
         this.delta = delta;
     }
 
+    public List<Double> getWeights() {
+        return weights;
+    }
+
     public double getOutput() {
         return output;
     }
@@ -50,9 +60,17 @@ public class Neuron {
         return weights.get(index);
     }
 
+    public void setWeight(int index, double newWeight) {
+        weights.set(index, newWeight);
+    }
+
     public double getBias()
     {
         return bias;
+    }
+
+    public void setBias(double newBias) {
+        bias = newBias;
     }
 
 }
