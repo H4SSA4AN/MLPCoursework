@@ -55,6 +55,11 @@ public class Neuron {
         this.inputs = inputs;
     }
 
+    public List<Double> getInputs()
+    {
+        return inputs;
+    }
+
     public double getWeight(int index)
     {
         return weights.get(index);
