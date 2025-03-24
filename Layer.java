@@ -60,6 +60,7 @@ public class Layer {
             n.setBias(newBias);
             for (int i = 0; i < n.getWeights().size(); i++) {
                 double newWeight = n.getWeight(i);
+
                 System.out.println(n.getWeight(i) + " + " + learnRate + " * " + n.getDelta() + " * " + n.getInputs().get(i));
                 newWeight += learnRate *  n.getDelta() * n.getInputs().get(i);
                 n.setWeight(i, newWeight);
