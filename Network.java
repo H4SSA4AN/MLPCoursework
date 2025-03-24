@@ -1,6 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.FileWriter;
 
 public class Network {
     // Collection of hidden layers and output layer
@@ -91,7 +95,7 @@ public class Network {
         hiddenLayers.get(0).setInputs(inputs);
         forwardPass();
         getFinalOut();
-        System.out.println(" Looking For : " + desiredOutput);
+        System.out.println("\t" + desiredOutput);
     }
 
 
@@ -131,8 +135,44 @@ public class Network {
 
     public void getFinalOut() {
         for (Neuron n : outputLayer.getNeurons()) {
-            System.out.println(n.getOutput());
+            System.out.print(n.getOutput() + " ");
         }
+    }
+
+    public void saveNet() {
+        // Write the weights to 2D list for each layer
+        // Multiple hidden layers, only one output layer
+        List<List<List<Double>>> hiddenWeights = new ArrayList<>();
+        List<List<Double>> outWeights = new ArrayList<>();
+
+        for (Layer l : hiddenLayers) {
+            List<List<Double>> neuronWeight = new ArrayList<>();
+            for (Neuron n : l.getNeurons()) {
+                neuronWeight.add(n.getWeights());
+            }
+            hiddenWeights.add(neuronWeight);
+        }
+
+        for (Neuron n : outputLayer.getNeurons()) {
+            outWeights.add(n.getWeights());
+        }
+
+        try {
+            FileWriter myWriter = new FileWriter("savedNetworks.txt");
+            myWriter.write(hiddenWeights.toString() + "\n");
+            myWriter.write(outWeights.toString());
+            myWriter.close();
+            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
+
+
+        System.out.println("Saved!");
+
+
     }
 
 

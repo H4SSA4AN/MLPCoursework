@@ -75,7 +75,7 @@ public class cleaner {
     private List<List<String>> keepOnlyNumbers(List<List<String>> fileData) {
         List<List<String>> newData = new ArrayList<>();
         for (int i = 0; i < fileData.size(); i++) {
-            newData.add(fileData.get(i).subList(1,9));
+            newData.add(fileData.get(i).subList(1,13));
         }
 
         return newData;
@@ -83,7 +83,7 @@ public class cleaner {
 
     // Function to separate the 2D array into a 1D array of each column, so i can find outliers easier, as well as standardise
     // 0-7, with 3 being skelton.
-    private List<Double> separateData (List<List<Double>> data, int index)
+    public List<Double> separateData (List<List<Double>> data, int index)
     {
         List<Double> column = new ArrayList<>();
         for (int i = 0; i < data.size(); i++) {
@@ -144,22 +144,47 @@ public class cleaner {
         return outliers;
     }
 
+    public List<List<Double>> getRivers(List<List<Double>> data) {
+        List<List<Double>> rivers = new ArrayList<>();
+
+        for (List<Double> row : data) {
+            rivers.add(row.subList(8,12));
+        }
+
+        return rivers;
+    }
+
+    public List<List<Double>> getOnlyRivers(String name) {
+
+        List<List<String>> data = readFile(name);
+        data = keepOnlyNumbers(data);
+        List<List<Double>> onlyNums = stringToDouble(data);
+        List<List<Double>> rivers = new ArrayList<>();
+        rivers = getRivers(onlyNums);
+
+        return rivers;
+
+    }
+
 
     public void check(String name)
     {
         List<List<String>> data = readFile(name);
-        data = removeFirstTwoLines(data);
+       // data = removeFirstTwoLines(data);
         data = keepOnlyNumbers(data);
         List<List<Double>> onlyNums = stringToDouble(data);
         List<Double> crakeHill = separateData(onlyNums, 0);
         double deviate = sd(crakeHill);
 
+        List<List<Double>> rivers = new ArrayList<>();
+        rivers = getRivers(onlyNums);
+
         System.out.println(data);
         System.out.println(data.size());
         System.out.println(onlyNums);
         System.out.println(onlyNums.size());
-        System.out.println(deviate);
-        System.out.println(findOutliers(crakeHill).size());
+        System.out.println(rivers);
+        System.out.println(rivers.size());
     }
 
 
