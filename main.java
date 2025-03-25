@@ -33,8 +33,8 @@ public class main {
 
         Network onlyRiversAI = new Network(trainData.get(0).size(), hiddenLayer, 1,0.1, reloo, sigm);
 
-        int count = 10000;
-        onlyRiversAI.loop(count, trainData, labels, 100);
+        int count = 100000;
+        onlyRiversAI.loop(count, trainData, labels, 10000);
 
 
         for (int i = 0; i < 30; i++)
