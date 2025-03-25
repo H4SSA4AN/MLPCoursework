@@ -13,36 +13,66 @@ public class main {
         cleaner hello = new cleaner();
        // hello.check("ouseNoErroneousStandardised.csv");
 
-        List<List<Double>> riverData = hello.getOnlyRivers("ouseNoErroneousStandardised.csv");
-       // System.out.println(riverData);
-        List<List<Double>> trainData = riverData.subList(0, 870); // Including skelton
-        List<Double> labels = hello.separateData(trainData, 3); // Only skelton
+        List<List<Double>> riverData = hello.getOnlyRivers("shuffledRecords.txt");
+        //System.out.println(riverData.size());
+     //   System.out.println(riverData);
+      //  riverData = hello.shuffle(riverData);
+       // hello.writeToFile(riverData);
+
+        List<List<Double>> trainData = riverData.subList(0, 853); // Including skelton
+        List<Double> trainLabel = hello.separateData(trainData, 3);// Only skelton labels
+        List<List<Double>> validationData = riverData.subList(854, 1136);
+        List<Double> validationLabel = hello.separateData(validationData, 3);
+        List<List<Double>> testData = riverData.subList(1136, 1422);
+        List<Double> testLabel = hello.separateData(testData, 3);
         // Need to remove skelton from trainData
         for (List<Double> row : trainData) {
             row.remove(row.size() - 1);
         }
+        for (List<Double> row : testData) {
+            row.remove(row.size() - 1);
+        }
+        for (List<Double> row : validationData) {
+            row.remove(row.size() - 1);
+        }
+        /*
         System.out.println(labels);
         System.out.println(trainData);
+        System.out.println(trainData.size());
+        */
+
+        System.out.println(validationData);
+        System.out.println(validationLabel);
+
 
         Activation sigm = new Sigmoid();
         Activation reloo = new Relu();
 
-        int[] hiddenLayer = {12, 10};
+        int[] hiddenLayer = {8};
 
-        System.out.println(trainData.get(0).size());
+     //   System.out.println(trainData.get(0).size());
 
-        Network onlyRiversAI = new Network(trainData.get(0).size(), hiddenLayer, 1,0.1, reloo, sigm);
+        Network onlyRiversAI = new Network(trainData.get(0).size(), hiddenLayer, 1,0.1, sigm, sigm);
 
-        int count = 100000;
-        onlyRiversAI.loop(count, trainData, labels, 10000);
+        int count = 50000;
+  //      onlyRiversAI.loop(count, trainData, trainLabel, 1000);
 
 
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < validationData.size(); i++)
         {
-            onlyRiversAI.test(trainData.get(i), labels.get(i));
+  //          onlyRiversAI.test(validationData.get(i), validationLabel.get(i));
         }
 
-        onlyRiversAI.saveNet();
+   //     onlyRiversAI.saveNet();
+
+    List<String> fileInfo = hello.loadNetworkFile("savedNetworks.txt");
+        List<List<String>> networkInfo = hello.getNetworkInfo(fileInfo, 1);
+      //  System.out.println(networkInfo);
+        List<List<Double>> hiddenLayerInfo = hello.getHiddenLayerInfo(networkInfo);
+        List<Double> outputLayerInfo = hello.getOutputLayerInfo(networkInfo);
+
+
+
 
 
 
@@ -53,4 +83,8 @@ public class main {
         Everything after skelton is daily rainfall total in mm
         */
     }
+
 }
+
+
+

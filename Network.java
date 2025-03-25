@@ -13,6 +13,9 @@ public class Network {
     List<Layer> hiddenLayers;
     Layer outputLayer;
     double loss;
+    Activation hiddenFunc;
+    Activation outputFunc;
+    double learningRate;
 
     Network (int inputLen, int[] hiddenLayerSizes, int outputLayerSize, double learningRate, Activation hiddenFunc, Activation outputFunc) {
         hiddenLayers = new ArrayList<>();
@@ -23,6 +26,16 @@ public class Network {
             }
         }
         outputLayer = new Layer(outputLayerSize, hiddenLayers.getLast().getNeurons().size(), learningRate, outputFunc);
+
+        // only keeping track of these values so they can be written to a file later, to recreate the network
+        this.hiddenFunc = hiddenFunc;
+        this.outputFunc = outputFunc;
+        this.learningRate = learningRate;
+    }
+
+    Network (List<Layer> hiddenLayers, Layer outputLayer) {
+        this.hiddenLayers = hiddenLayers;
+        this.outputLayer = outputLayer;
     }
 
     public void setInputs(List<Double> inputs) {
@@ -82,7 +95,7 @@ public class Network {
     // This is where we do showing the loss
     public void loop(int count, List<List<Double>> inputs, List<Double> desiredOutputs, int printLoss)
     {
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i <= count; i++) {
             epoch(inputs, desiredOutputs);
             if (i % printLoss == 0)
             {
@@ -158,9 +171,12 @@ public class Network {
         }
 
         try {
-            FileWriter myWriter = new FileWriter("savedNetworks.txt");
+            FileWriter myWriter = new FileWriter("savedNetworks.txt",true);
+            myWriter.write(" - \n");
             myWriter.write(hiddenWeights.toString() + "\n");
             myWriter.write(outWeights.toString());
+            myWriter.write("\n " + hiddenFunc.asWord() + " + " + outputFunc.asWord() + " + " + learningRate);
+            myWriter.write("\n  LOSS : " + loss + " \n - \n");
             myWriter.close();
             System.out.println("Successfully wrote to the file.");
         } catch (IOException e) {
