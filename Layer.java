@@ -6,14 +6,20 @@ public class Layer {
     private List<Neuron> neurons;
     private double learnRate;
     Activation func;
+    // for momentum
+    private double alpha = 0.9;
+    private boolean useMomentum = false;
+    // for bold driver
+    private double previousError = Double.MAX_VALUE;
 
-    Layer (int layerLen, int inputLen, double learnRate, Activation func) {
+    Layer (int layerLen, int inputLen, double learnRate, Activation func, boolean useMomentum) {
         this.learnRate = learnRate;
         neurons = new ArrayList<>();
         for (int i = 0; i < layerLen; i++) {
             neurons.add(new Neuron(inputLen, func));
         }
         this.func = func;
+        this.useMomentum = useMomentum;
     }
 
     // To make a custom network for testing against the lecture ANN
@@ -30,8 +36,10 @@ public class Layer {
         }
     }
 
+
+
     // Back pass for output node(s)
-    // Set the deltas list to whatever we get here
+    // Backpropagation for the output node
     public void backward(double desired) {
         for (int i =0; i < neurons.size(); i++) {
             double delta = desired - neurons.get(i).getOutput();
@@ -40,7 +48,7 @@ public class Layer {
         }
     }
 
-    // Need to find the weight connecting current node and node in the ahead layer
+    // Backpropagation for the hidden layers
     public void backward(Layer aheadLayer) {
         List<Neuron> aheadNeurons = aheadLayer.getNeurons();
         for (int i=0; i < aheadNeurons.size(); i++) {
@@ -54,14 +62,36 @@ public class Layer {
     }
 
     public void updateWeights() {
+
         for (Neuron n : neurons) {
             double newBias = n.getBias();
-            newBias += learnRate * n.getDelta() * 1.0;
+            // bold driver
+            n.setPreviousBias(newBias);
+            if (useMomentum) {
+                newBias += learnRate * n.getDelta() * 1.0 + (alpha*n.getPrevBiasChange());
+            }
+            else
+            {
+                newBias += learnRate * n.getDelta() * 1.0;
+            }
+            // momentum
+            n.setPrevBiasChange(newBias - n.getBias());
             n.setBias(newBias);
+            // bold driver
+            n.setPreviousWeights(n.getWeights());
             for (int i = 0; i < n.getWeights().size(); i++) {
                 double newWeight = n.getWeight(i);
-                newWeight += learnRate *  n.getDelta() * n.getOutput();
-                // System.out.println(learnRate + " * " + n.getDelta() + " * " + n.getOutput()  + " = " + newWeight);
+
+
+                //System.out.println(n.getWeight(i) + " + " + learnRate + " * " + n.getDelta() + " * " + n.getInputs().get(i));
+                if (useMomentum) {
+                    newWeight += learnRate *  n.getDelta() * n.getInputs().get(i) + (alpha*n.getPrevChange(i));
+                }
+                else {
+                    newWeight += learnRate * n.getDelta() * n.getInputs().get(i);
+                }
+                // momentum
+                n.setPrevChange(i, newWeight - n.getWeight(i));
                 n.setWeight(i, newWeight);
             }
         }
@@ -89,6 +119,7 @@ public class Layer {
         return outputs;
     }
 
+
     public void setInputs (List<Double> inputs) {
         for (int i = 0; i < neurons.size(); i++) {
             neurons.get(i).setInputs(inputs);
@@ -104,6 +135,20 @@ public class Layer {
         for (Neuron n : neurons) {
             System.out.println(n.getDelta());
         }
+    }
+
+    public void setLearnRate (double learnRate) {
+        this.learnRate = learnRate;
+    }
+
+
+    // For momentum
+public double getAlpha () {
+        return alpha;
+}
+
+    public void setAlpha (double alpha) {
+        this.alpha = alpha;
     }
 
 }

@@ -2,6 +2,7 @@ interface Activation {
 
     public double apply (double x);
     public double deriv (double x);
+    public String asWord();
 }
 
 class Sigmoid implements Activation {
@@ -15,6 +16,11 @@ class Sigmoid implements Activation {
     public double deriv (double x) {
         return x*(1-x);
     }
+
+    @Override
+    public String asWord() {
+        return "sigmoid";
+    }
 }
 
 class Relu implements Activation {
@@ -26,11 +32,16 @@ class Relu implements Activation {
 
     @Override
     public double deriv (double x) {
-        if (x < 0){
+        if (x == 0){
             return 0;
         }
         else {
             return 1;
         }
+    }
+
+    @Override
+    public String asWord() {
+        return "relu";
     }
 }
