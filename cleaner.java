@@ -90,7 +90,11 @@ public class cleaner {
     {
         List<Double> column = new ArrayList<>();
         for (int i = 0; i < data.size(); i++) {
-            column.add(data.get(i).get(index));
+            try {
+                column.add(data.get(i).get(index));
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println(i + " You fucked ");
+            }
         }
 
         return column;
@@ -170,7 +174,7 @@ public class cleaner {
         try {
             FileWriter myWriter = new FileWriter("shuffledRecords.txt");
             for (List<Double> row : data) {
-                for (int i = 0; i < row.size(); i++) {
+                for (int i = 4; i < row.size(); i++) {
                     if (i < row.size() - 1) {
                         {
                             myWriter.write(row.get(i) + ",");

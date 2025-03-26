@@ -3,6 +3,12 @@ import java.util.List;
 
 public class Neuron {
     private List<Double> weights;
+    // for momentum
+    private List<Double> previousChange;
+    private double prevBiasChange;
+    // for bold driver
+    private List<Double> previousWeights;
+    private double previousBias;
     private double bias;
     private Activation func;
     private double delta;
@@ -12,10 +18,15 @@ public class Neuron {
 
     Neuron(int inputLen, Activation func) {
         weights = new ArrayList<>();
+        previousChange = new ArrayList<>();
+        prevBiasChange = 0.0;
         bias = Math.random() * 2 - 1;
         for (int i = 0; i < inputLen; i++) {
             weights.add(Math.random() * 2 - 1);
+            previousChange.add(0.0);
         }
+        this.previousWeights = weights;
+        this.previousBias = bias;
         this.func = func;
     }
 
@@ -76,6 +87,39 @@ public class Neuron {
 
     public void setBias(double newBias) {
         bias = newBias;
+    }
+
+    public void setPrevBiasChange(double prevBiasChange)
+    {
+        this.prevBiasChange = prevBiasChange;
+    }
+
+    public void setPreviousWeights(List<Double> weights)
+    {
+        this.previousWeights = weights;
+    }
+
+    public void setPreviousBias(double bias)
+    {
+        this.previousBias = bias;
+    }
+
+    public void rollBack()
+    {
+        weights = previousWeights;
+        bias = previousBias;
+    }
+
+    public double getPrevBiasChange(){
+        return prevBiasChange;
+    }
+
+    public void setPrevChange(int index, double newChange) {
+        previousChange.set(index, newChange);
+    }
+
+    public double getPrevChange(int index) {
+        return previousChange.get(index);
     }
 
 }
